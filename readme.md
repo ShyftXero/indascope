@@ -1,7 +1,7 @@
 # indascope
 Check to see if one or more hosts is in... the... scope... 
 
-useful for validating the output of some other tool subfinder
+useful for validating the output of some other tool like subfinder from projectdiscovery.io
 
 ```
 Usage: indascope [OPTIONS] [TARGETS]...
