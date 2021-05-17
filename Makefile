@@ -4,7 +4,7 @@ clean:
 
 develop:
 	python -m venv venv
-	sorusource venv/bin/activate
+	source venv/bin/activate
 	pip install -r requirements.txt 
 
 build:
