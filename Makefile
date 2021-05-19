@@ -10,6 +10,7 @@ develop:
 build:
 	pyinstaller indascope.spec --distpath='dist'
 
+
 install: 
 	sudo ln -s ${PWD}/dist/indascope /usr/bin/indascope
 
