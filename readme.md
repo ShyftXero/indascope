@@ -3,7 +3,7 @@ Check to see if one or more hosts is in... the... scope...
 
 useful for validating the output of some other tool like subfinder from projectdiscovery.io
 
-searches the current directory for `in_scope.txt`. if that fails it searches your home directory (`~/in_scope.txt) 
+searches the current directory for `in_scope.txt`. if that fails it searches your home directory (`~/in_scope.txt`) 
 
 
 ```
