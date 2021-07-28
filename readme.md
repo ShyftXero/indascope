@@ -58,7 +58,7 @@ another.domain.com
 ## Installation
 Get the latest release binary and put it somewhere in your path. 
 
-`sudo cp indascope /usr/local/bin/`
+`sudo cp indascope /usr/bin/`
 
 
 ## Install from source
