@@ -1,3 +1,4 @@
+the_date := $(shell date +%Y.%m.%d)
 
 clean:
 	rm -rf dist build
@@ -12,11 +13,10 @@ build:
 	pyinstaller indascope.spec --distpath='dist'
 
 release:
-	DATE=$(shell date +%Y.%m.%d)
-	sed -i "s/__UNRELEASED_VERSION__/$(DATE)/g" indascope.py
+	sed -i "s/__UNRELEASED_VERSION__/${the_date}/g" indascope.py
 	# make build
-	sed -i "s/$(DATE)/__UNRELEASED_VERSION__1/g" indascope.py
-	gh release create -n '' -t indascope_$(DATE) $(DATE) dist/indascope 
+	sed -i "s/${the_date}/__UNRELEASED_VERSION__/g" indascope.py
+	gh release create -n '' -t indascope_${the_date} ${the_date} dist/indascope 
 
 install: 
 	sudo rm -rf /usr/bin/indascope
