@@ -5,13 +5,13 @@ block_cipher = None
 
 
 a = Analysis(['indascope.py'],
-             pathex=['/home/shyft/Dropbox/code/in_scope'],
+             pathex=['/home/shyft/Dropbox/code/indascope'],
              binaries=[],
              datas=[],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
-             excludes=['matplotlib', 'scipy', 'pandas', 'numpy', 'pyqt5'],
+             excludes=[],
              win_no_prefer_redirects=False,
              win_private_assemblies=False,
              cipher=block_cipher,

@@ -6,10 +6,13 @@ import sys
 import re
 from pathlib import Path
 from typing import List, Optional, Union
+from mpire import WorkerPool
 
 
 import typer
 from rich import print
+
+__VERSION__ = '' # this is updated with make release which rebuilds 
 
 INSTALL_DIR = Path(__file__).parent
 VERBOSE = False
@@ -91,7 +94,7 @@ def build_targets(scope_file) -> set:
 
     return targets
 
-def check(potential_targets, in_scope_targets, verbose=False):
+def check(in_scope_targets, potential_targets, verbose=False):
     if type(potential_targets) == str:
         potential_targets=[potential_targets,'']
 
@@ -117,8 +120,12 @@ def check(potential_targets, in_scope_targets, verbose=False):
 
 
 @app.command()
-def in_scope(targets:List[str]=typer.Argument(None), target_file:Path=None, scope_file:Path=f'./in_scope.txt', verbose:bool=typer.Option(False, '-v')):
+def in_scope(targets:List[str]=typer.Argument(None), target_file:Path=None, scope_file:Path=f'./in_scope.txt', verbose:bool=typer.Option(False, '-v'), version:bool=typer.Option(False, '--version')):
     """Checks to see if one or more host IPs are in the scope file; """
+    if version:
+        print(__VERSION__)
+        sys.exit()
+
     if verbose == True:
         global VERBOSE
         VERBOSE = True
@@ -132,7 +139,13 @@ def in_scope(targets:List[str]=typer.Argument(None), target_file:Path=None, scop
         with open(target_file) as f:
             targets = f.read().splitlines(keepends=False)
 
-    check(targets, in_scope_ips)
+
+    with WorkerPool(shared_objects=in_scope_ips) as pool:
+        # https://slimmer-ai.github.io/mpire/v2.1.0/usage/worker_pool.html#shared-objects
+        # pool.set_shared_objects(in_scope_ips) # another way to do this inside of 
+        pool.map(check, targets)
+
+    # check(targets, in_scope_ips)
     
 
 if __name__ == '__main__':
