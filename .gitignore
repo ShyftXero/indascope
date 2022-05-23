@@ -2,3 +2,8 @@ __pycache__
 build
 dist
 venv
+.vscode/
+Pipfile
+indascope.bin
+indascope.build/
+indascope.dist/
