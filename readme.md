@@ -55,6 +55,10 @@ another.domain.com
 172.16.0.0/16
 ```
 
+## Installation
+Get the latest release binary and put it somewhere in your path. 
+
+`sudo cp indascope /usr/bin/`
 
 
 ## Install from source
