@@ -12,7 +12,7 @@ build:
 	pyinstaller indascope.spec --distpath='dist'
 
 release:
-	DATE = $(shell date +%Y.%m.%d)
+	DATE=$(shell date +%Y.%m.%d)
 	sed -i "s/__UNRELEASED_VERSION__/$(DATE)/g" indascope.py
 	# make build
 	sed -i "s/$(DATE)/__UNRELEASED_VERSION__1/g" indascope.py
