@@ -1,10 +1,11 @@
 1.1.1.1 # this is a comments after an addy
 8.8.8.8
 1.2.3.4 
-192.168.1.0/24
-172.16.0.0/16
+192.168.1.0/28
+# 172.16.0.0/16
 12.34.13.37
 # this is a comment
 #vuln.target.com 
 1.2.3.4
 shyft.us
+

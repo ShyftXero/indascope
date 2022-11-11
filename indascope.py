@@ -10,6 +10,7 @@ from mpire import WorkerPool
 
 
 import typer
+og_print = print
 from rich import print
 
 __VERSION__ = '' # this is updated with make release which rebuilds 
@@ -37,7 +38,7 @@ def get_ip(host:str, verbose=True, loading_scope=False) -> ipaddress.IPv4Address
 
 
 
-def build_targets(scope_file) -> set:
+def build_scope(scope_file, showing:bool=False) -> set:
     targets = set()
     try:
         f = open(scope_file)
@@ -69,15 +70,18 @@ def build_targets(scope_file) -> set:
                     print('is an ip ', line)
                 targets.add(ipaddress.IPv4Address(line))   
             elif re.search(r'\d\/\d*$', line): # for cidr networks e.g. 10.0.0.0/8
-                if VERBOSE:
-                    print('is a cidr', line)
-                ip_net = ipaddress.ip_network(line)
+                
+                ip_net = ipaddress.ip_network(line, strict=False)
+                
                 net = [ip for ip in ip_net] # add all the ips to the set... 
+                if VERBOSE:
+                    print(f'is a cidr {line} with {len(net)} IPs starting at {net[0]} and ending at {net[-1]}')
                 targets.update(net)
             elif re.search(r'\w', line): # is a hostname... we need the ip 
+                
+                ip = get_ip(line, loading_scope=True)   
                 if VERBOSE:
-                    print('is a hostname', line)
-                ip = get_ip(line, loading_scope=True)       
+                    print(f'is a hostname "{line}" with ip {ip}')    
                 targets.add(ip)         # add the ip to the set
                 targets.add(line)       # and the hostname...    
     try:
@@ -85,13 +89,13 @@ def build_targets(scope_file) -> set:
     except KeyError as e:
         pass
 
-    if VERBOSE:
-        num_targets = len(targets)
-        if num_targets < 512:
-            print(targets)  # rich.print is slow on large collections. 
-        print(f'Total in scope IPS: {num_targets}')
-        print('-'*30)
-
+    # if VERBOSE and showing == False:
+    #     num_targets = len(targets)
+    #     if num_targets < 512:
+    #         print(targets)  # rich.print is slow on large collections. 
+    #     print(f'Total in scope IPS: {num_targets}')
+    #     print('-'*30)
+    
     return targets
 
 def check(in_scope_targets, potential_targets, verbose=False):
@@ -120,18 +124,32 @@ def check(in_scope_targets, potential_targets, verbose=False):
 
 
 @app.command()
-def in_scope(targets:List[str]=typer.Argument(None), target_file:Path=None, scope_file:Path=f'./in_scope.txt', verbose:bool=typer.Option(False, '-v'), version:bool=typer.Option(False, '--version')):
+def in_scope(targets:List[str]=typer.Argument(None), target_file:Path=None, scope_file:Path=f'./in_scope.txt', verbose:bool=typer.Option(False, '-v'), show:bool=typer.Option(False, '--show-ips', '-s'), version:bool=typer.Option(False, '--version')):
     """Checks to see if one or more host IPs are in the scope file; """
     if version:
         print(__VERSION__)
         sys.exit()
-
     if verbose == True:
         global VERBOSE
         VERBOSE = True
 
-    in_scope_ips = build_targets(scope_file)
-        
+    in_scope_targets = build_scope(scope_file, showing=show)
+
+    if show:
+        in_scope_host : ipaddress.IPv4Address
+        # for in_scope_host in in_scope_targets: # 10 seconds for example scope; 65k ips
+        #     if type(in_scope_host) == ipaddress.IPv4Address:
+
+        #     print(str(in_scope_host))
+
+        ips=[str(x) for x in in_scope_targets]
+        print(sorted(ips)) # 5 seconds ; 65k ips
+        if VERBOSE:
+            print(f'Total in scope hosts (IPs and hostnames): {len(in_scope_targets)}')
+        sys.exit()
+
+
+    
     if len(targets) == 0  and target_file == None:
         # print('using stdin')
         targets = sys.stdin.read().splitlines(keepends=False)
@@ -140,7 +158,7 @@ def in_scope(targets:List[str]=typer.Argument(None), target_file:Path=None, scop
             targets = f.read().splitlines(keepends=False)
 
 
-    with WorkerPool(shared_objects=in_scope_ips) as pool:
+    with WorkerPool(shared_objects=in_scope_targets) as pool:
         # https://slimmer-ai.github.io/mpire/v2.1.0/usage/worker_pool.html#shared-objects
         # pool.set_shared_objects(in_scope_ips) # another way to do this inside of 
         pool.map(check, targets)
